@@ -2,30 +2,37 @@ import openpyxl
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import *
+from tkinter import messagebox
+import time
 
 
 def convert_excel_to_vcf():
     input_file = filedialog.askopenfilename(filetypes=[("Excel Files", "*.xlsx")])
 
     if input_file:
-        output_file = f"{input_file}_KİŞİLER.vcf"  # Oluşturulacak VCF dosyasının adını girin
-
-        # Kullanıcının girdiği metni alın
-        baslik = kisilerin_basi_entry.get()
-        son = kisilerin_sonu_entry.get()
-
         workbook = openpyxl.load_workbook(input_file)
         sheet = workbook.active
 
+        rows_to_delete = []
+        for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row):
+            if all([cell.value is None for cell in row]):
+                rows_to_delete.append(row)
+
+        for row in rows_to_delete:
+            sheet.delete_rows(row[0].row)
+        workbook.save(input_file)
+
+        output_file = f"{input_file}_KİŞİLER.vcf"
+        baslik = kisilerin_basi_entry.get()
+        son = kisilerin_sonu_entry.get()
+
         with open(output_file, "w", encoding="utf-8") as vcf_file:
             for row in sheet.iter_rows(values_only=True):
-                name = row[0]  # İsim sütunu
-                phone = row[1]  # Telefon numarası sütunu
+                name = row[0]
+                phone = row[1]
 
-                # B sütunundaki numaraların başına 0 ekleyin
-                phone = str(phone).zfill(10)
 
-                # Kullanıcının girdiği metni kişinin isminin başına ve sonuna ekleyin
+                phone = str(phone).replace(" ", "").zfill(11)
                 full_name = f"{baslik} {name} {son}"
 
                 vcf_file.write("BEGIN:VCARD\n")
@@ -33,8 +40,8 @@ def convert_excel_to_vcf():
                 vcf_file.write(f"N:{full_name}\n")
                 vcf_file.write(f"TEL:{phone}\n")
                 vcf_file.write("END:VCARD\n")
-
-        result_label.config(text="Liste dosyası başarıyla kişiler dosyasına dönüştürüldü")
+        time.sleep(1.5)
+        messagebox.showinfo(title="Tamamlandı",message="Liste başarıyla kişiler dosyasına dönüştürüldü")
 
 
 
