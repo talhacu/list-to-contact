@@ -1,10 +1,10 @@
-import openpyxl
 import tkinter as tk
 from tkinter import filedialog, messagebox, Label, Entry, Button, PhotoImage
 import time
+import openpyxl
 
 
-def convert_excel_to_vcf():
+def convert_excel_to_vcf(): 
     input_file = filedialog.askopenfilename(filetypes=[("Excel Files", "*.xlsx")])
 
     if input_file:
